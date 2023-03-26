@@ -5,7 +5,7 @@ using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InlineQueryResults;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace Telegram.Bot.Services;
+namespace Telegram.Bot.Examples.Polling.Services;
 
 public class UpdateHandler : IUpdateHandler
 {
@@ -54,6 +54,8 @@ public class UpdateHandler : IUpdateHandler
             "/request"         => RequestContactAndLocation(_botClient, message, cancellationToken),
             "/inline_mode"     => StartInlineQuery(_botClient, message, cancellationToken),
             "/throw"           => FailingHandler(_botClient, message, cancellationToken),
+            "/open_day"                  => OpenDay(_botClient, message, cancellationToken),
+            "/close_day"                  => CloseDay(_botClient, message, cancellationToken),
             _                  => Usage(_botClient, message, cancellationToken)
         };
         Message sentMessage = await action;
@@ -165,7 +167,10 @@ public class UpdateHandler : IUpdateHandler
                                  "/remove      - remove custom keyboard\n" +
                                  "/photo       - send a photo\n" +
                                  "/request     - request location or contact\n" +
-                                 "/inline_mode - send keyboard with Inline Query";
+                                 "/inline_mode - send keyboard with Inline Query \n" +
+                                 "/open_day - открытие дня\n" +
+                                 "/close_day - закрытие дня\n"
+                                 ;
 
             return await botClient.SendTextMessageAsync(
                 chatId: message.Chat.Id,
@@ -270,4 +275,98 @@ public class UpdateHandler : IUpdateHandler
         if (exception is RequestException)
             await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
     }
+
+    static async Task<Message> OpenDay(ITelegramBotClient botClient, Message message,
+        CancellationToken cancellationToken)
+    {
+        if (message.SenderChat?.Username == "@lesenokkk7" || message.SenderChat?.Username == "@UtkirHawk")
+        {
+            return await botClient.SendTextMessageAsync(
+                chatId: message.Chat.Id,
+                text: "Ле красотка, салам алейкум. Че работать начинаем? ",
+                replyMarkup: new ReplyKeyboardRemove(),
+                cancellationToken: cancellationToken);
+        }
+
+        return await botClient.SendTextMessageAsync(
+            chatId: message.Chat.Id,
+            text: OpenDayText,
+            replyMarkup: new ReplyKeyboardRemove(),
+            cancellationToken: cancellationToken);
+    }
+
+    static async Task<Message> CloseDay(ITelegramBotClient botClient, Message message,
+        CancellationToken cancellationToken)
+    {
+        // if (message.SenderChat?.Username == "@lesenokkk7" || message.SenderChat?.Username == "@UtkirHawk")
+        // {
+        //     return await botClient.SendTextMessageAsync(
+        //         chatId: message.Chat.Id,
+        //         text: "Ле красотка, салам алейкум. Че работать начинаем? ",
+        //         replyMarkup: new ReplyKeyboardRemove(),
+        //         cancellationToken: cancellationToken);
+        // }
+
+        return await botClient.SendTextMessageAsync(
+            chatId: message.Chat.Id,
+            text: "Пора домой! ",
+            replyMarkup: new ReplyKeyboardRemove(),
+            cancellationToken: cancellationToken);
+    }
+
+    private static string OpenDayText = $""""
+                ОТКРЫТИЕ СМЕНЫ
+
+                24.03.23
+                Джоки Джоя, тц Мега Белая дача
+
+                Смену приняли:
+                    Фотографы - Лапшина
+                    Ретушёры  - Титаренко
+
+                Порядок на точке:
+                📍Мусора нет
+                📍Банки с краской чистые
+                📍Пыли нет
+                📍Футболки - 5 шт (две с пятнами)
+                📍Все принтеры имеют достаточный уровень чернил
+
+                ⚡⚡⚡Работа оборудования, внешние дефекты
+
+                ФОТОАППАРАТ:
+                -
+                ✴️ Фотоаппарат Canon EOS60D (2931411508) - ➡️➡️➡️ - работает исправно , внешних дефектов нет✅
+                ✴️ Фотоаппарат Canon EOS6D (258054000288) - ➡️➡️➡️ - работает исправно, внешних дефектов нет ✅
+
+                ОБЪЕКТИВЫ:
+
+                ✳️ Canon LENS EF 28mm 1:1.8 STM (26480297) -  ➡️➡️➡️ - работает исправно, внешних дефектов нет
+                ✳️ Canon LENS EF 50mm 1:1.8 STM (1831101185) -  ➡️➡️➡️ - работает исправно, внешних дефектов нет
+
+                ВСПЫШКИ:
+
+                🅾️ Godox TT520 II - ➡️➡️➡️  работает исправно, внешних дефектов нет ✅
+                🅾️ Godox TT520 II (22C25B) - ➡️➡️➡️  работает исправно, внешних дефектов нет ✅
+                🅾️ GODOX  TT 520 IIM22G004725 Собственность Жикула ➡️➡️➡️  работает исправно, внешних дефектов нет ✅
+
+                СИНХРОНИЗАТОРЫ:
+                🟤 Godox (22B27M) ➡️➡️➡️ работает исправно✅
+                🟤 Godox  ➡️➡️➡️ работает исправно✅
+                🟤 GODOX RT-16 ZYR-AT-16 Собственность Жикула ➡️➡️➡️ работает исправно✅
+
+                ПРИНТЕРЫ:
+
+                📠EPSON L805 2 - W7YK268029   ➡️➡️➡️  заявка на ремонт
+                📠 EPSON L805 3  - W7YK047299   ➡️➡️➡️  работает исправно, внешних дефектов нет ✅
+                📠EPSON L805 4  - W7YK172215 ➡️➡️➡️ заявка на ремонт
+                📠EPSON L805 5   - W7YK262860   ➡️➡️➡️ работает исправно, внешних дефектов нет ✅ плохо захватывает бумагу
+                📠 EPSON L805 6  -  W7YK087813   ➡️➡️➡️ ➡️➡️➡️  при печати портит качество изображения, внешних дефектов нет ✅
+                📠 EPSON L805 7  - W7YK228468  ➡️➡️➡️ полосит, выкачивали воздух, не помогло, внешних дефектов нет ✅
+
+                МАК:
+                🖥️ iMac (C02L583WDNCR)  ➡️➡️➡️   работает исправно, внешних дефектов нет ✅
+                🖥️ iMac (CO2HL6RZDHJP)  ➡️➡️➡️   греется, виснет, внешних дефектов нет ✅
+
+                Смену приняли: Лапшина, Титаренко
+        """";
 }

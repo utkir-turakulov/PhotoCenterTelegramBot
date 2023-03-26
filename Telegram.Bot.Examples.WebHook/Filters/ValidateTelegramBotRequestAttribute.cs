@@ -2,14 +2,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Options;
 
-namespace Telegram.Bot.Filters;
+namespace Telegram.Bot.Examples.WebHook.Filters;
 
 /// <summary>
 /// Check for "X-Telegram-Bot-Api-Secret-Token"
 /// Read more: <see href="https://core.telegram.org/bots/api#setwebhook"/> "secret_token"
 /// </summary>
 [AttributeUsage(AttributeTargets.Method)]
-public class ValidateTelegramBotAttribute : TypeFilterAttribute
+public sealed class ValidateTelegramBotAttribute : TypeFilterAttribute
 {
     public ValidateTelegramBotAttribute()
         : base(typeof(ValidateTelegramBotFilter))

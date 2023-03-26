@@ -1,7 +1,7 @@
 using Telegram.Bot;
-using Telegram.Bot.Services;
+using Telegram.Bot.Examples.Polling.Services;
 
-IHost host = Host.CreateDefaultBuilder(args)
+var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
     {
         // Register Bot configuration
@@ -16,7 +16,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddHttpClient("telegram_bot_client")
                 .AddTypedClient<ITelegramBotClient>((httpClient, sp) =>
                 {
-                    BotConfiguration? botConfig = sp.GetConfiguration<BotConfiguration>();
+                    var botConfig = sp.GetConfiguration<BotConfiguration>();
                     TelegramBotClientOptions options = new(botConfig.BotToken);
                     return new TelegramBotClient(options, httpClient);
                 });

@@ -1,6 +1,6 @@
 using Telegram.Bot.Abstract;
 
-namespace Telegram.Bot.Services;
+namespace Telegram.Bot.Examples.Polling.Services;
 
 // Compose Receiver and UpdateHandler implementation
 public class ReceiverService : ReceiverServiceBase<UpdateHandler>

@@ -56,3 +56,10 @@ From ngrok you get an URL to your local server. It’s important to use the `htt
 Now you can start the Bot in a local instance. Check if the port of the application matches the port on which ngrok is running.
 
 Now your bot should answer with the text from every message you send to it.
+
+
+### Установить пароль и вебхук
+
+[setWebhook](https://api.telegram.org/bot6160429513:AAFk3UonrongwdSJZjy0oD3_dSBuSTWlAWE/setWebhook?secretToken=test-utkir-bot&url=https://d576-185-213-230-33.in.ngrok.io/bot)
+
+

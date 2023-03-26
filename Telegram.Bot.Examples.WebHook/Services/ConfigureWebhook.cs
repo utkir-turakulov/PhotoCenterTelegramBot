@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Options;
 using Telegram.Bot.Types.Enums;
 
-namespace Telegram.Bot.Services;
+namespace Telegram.Bot.Examples.WebHook.Services;
 
 public class ConfigureWebhook : IHostedService
 {
@@ -21,21 +21,36 @@ public class ConfigureWebhook : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        using var scope = _serviceProvider.CreateScope();
-        var botClient = scope.ServiceProvider.GetRequiredService<ITelegramBotClient>();
+        bool succeed = false;
 
-        // Configure custom endpoint per Telegram API recommendations:
-        // https://core.telegram.org/bots/api#setwebhook
-        // If you'd like to make sure that the webhook was set by you, you can specify secret data
-        // in the parameter secret_token. If specified, the request will contain a header
-        // "X-Telegram-Bot-Api-Secret-Token" with the secret token as content.
-        var webhookAddress = $"{_botConfig.HostAddress}{_botConfig.Route}";
-        _logger.LogInformation("Setting webhook: {WebhookAddress}", webhookAddress);
-        await botClient.SetWebhookAsync(
-            url: webhookAddress,
-            allowedUpdates: Array.Empty<UpdateType>(),
-            secretToken: _botConfig.SecretToken,
-            cancellationToken: cancellationToken);
+        while (succeed)
+        {
+            try
+            {
+                await Task.Delay(2000, cancellationToken);
+                using var scope = _serviceProvider.CreateScope();
+                var botClient = scope.ServiceProvider.GetRequiredService<ITelegramBotClient>();
+
+                // Configure custom endpoint per Telegram API recommendations:
+                // https://core.telegram.org/bots/api#setwebhook
+                // If you'd like to make sure that the webhook was set by you, you can specify secret data
+                // in the parameter secret_token. If specified, the request will contain a header
+                // "X-Telegram-Bot-Api-Secret-Token" with the secret token as content.
+                var webhookAddress = $"{_botConfig.HostAddress}{_botConfig.Route}";
+                _logger.LogInformation("Setting webhook: {WebhookAddress}", webhookAddress);
+                await botClient.SetWebhookAsync(
+                    url: webhookAddress,
+                    allowedUpdates: Array.Empty<UpdateType>(),
+                    secretToken: _botConfig.SecretToken,
+                    cancellationToken: cancellationToken);
+
+                succeed = true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, nameof(ConfigureWebhook));
+            }
+        }
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)

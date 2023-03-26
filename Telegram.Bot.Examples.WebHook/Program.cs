@@ -1,8 +1,13 @@
 using Telegram.Bot;
-using Telegram.Bot.Controllers;
-using Telegram.Bot.Services;
+using Telegram.Bot.Examples.WebHook.Controllers;
+using Telegram.Bot.Examples.WebHook.Services;
+
+
+var configuration = GetConfiguration();
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.WebHost.ConfigureAppConfiguration(x => x.AddConfiguration(configuration));
 
 // Setup Bot configuration
 var botConfigurationSection = builder.Configuration.GetSection(BotConfiguration.Configuration);
@@ -18,7 +23,7 @@ var botConfiguration = botConfigurationSection.Get<BotConfiguration>();
 builder.Services.AddHttpClient("telegram_bot_client")
                 .AddTypedClient<ITelegramBotClient>((httpClient, sp) =>
                 {
-                    BotConfiguration? botConfig = sp.GetConfiguration<BotConfiguration>();
+                    var botConfig = sp.GetConfiguration<BotConfiguration>();
                     TelegramBotClientOptions options = new(botConfig.BotToken);
                     return new TelegramBotClient(options, httpClient);
                 });
@@ -29,6 +34,7 @@ builder.Services.AddScoped<UpdateHandlers>();
 // There are several strategies for completing asynchronous tasks during startup.
 // Some of them could be found in this article https://andrewlock.net/running-async-tasks-on-app-startup-in-asp-net-core-part-1/
 // We are going to use IHostedService to add and later remove Webhook
+
 builder.Services.AddHostedService<ConfigureWebhook>();
 
 // The Telegram.Bot library heavily depends on Newtonsoft.Json library to deserialize
@@ -40,11 +46,31 @@ builder.Services
     .AddNewtonsoftJson();
 
 var app = builder.Build();
+
 // Construct webhook route from the Route configuration parameter
 // It is expected that BotController has single method accepting Update
+
 app.MapBotWebhookRoute<BotController>(route: botConfiguration.Route);
+
 app.MapControllers();
 app.Run();
+
+
+static IConfiguration GetConfiguration()
+{
+    var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+    environment ??= "Development";
+
+    var configurationBuilder = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", false, true)
+            .AddJsonFile($"appsettings.{environment}.json", true, true)
+            // .AddJsonFile("serilog.json", true, true)
+            // .AddJsonFile($"serilog.{environment}.json", true, true)
+        ;
+
+    return configurationBuilder.Build();
+}
 
 #pragma warning disable CA1050 // Declare types in namespaces
 #pragma warning disable RCS1110 // Declare type inside namespace.
@@ -55,7 +81,12 @@ public class BotConfiguration
     public static readonly string Configuration = "BotConfiguration";
 
     public string BotToken { get; init; } = default!;
+
+    public long? BotId { get; }
+
     public string HostAddress { get; init; } = default!;
     public string Route { get; init; } = default!;
     public string SecretToken { get; init; } = default!;
+
+    public string BaseUrl { get; init; } = default!;
 }
